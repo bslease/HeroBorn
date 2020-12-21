@@ -12,12 +12,16 @@ public class PlayerBehavior : MonoBehaviour
     public float distanceToGround = 0.1f;
     public LayerMask groundLayer;
 
+    public GameObject bullet;
+    public float bulletSpeed = 100f;
+
     private float vInput;
     private float hInput;
     private Rigidbody _rb;
     private CapsuleCollider _col;
 
     private bool doJump = false;
+    private bool doShoot = false;
 
     private void Start()
     {
@@ -41,6 +45,12 @@ public class PlayerBehavior : MonoBehaviour
         {
             doJump = true;
         }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            doShoot = true;
+        }
+
     }
 
     private void FixedUpdate()
@@ -53,7 +63,8 @@ public class PlayerBehavior : MonoBehaviour
         // NOTE: doing input checking in FixedUpdate can result in missed input
         // instead do the input check in Update and set a flag, then check and reset the flag here
         // alternatively, check Input.GetKey rather than GetKeyDown, but user will still experience input lag
-        // and you'll be splitting up your input checking into two places
+        // and you'll be splitting up your input checking into two places, and you STILL might miss input if user releases quickly
+        // Author makes acknowledges this on p.221
         //if (IsGrounded() && Input.GetKeyDown(KeyCode.Space))
         if (doJump)
         {
@@ -65,6 +76,17 @@ public class PlayerBehavior : MonoBehaviour
         Quaternion angleRot = Quaternion.Euler(rotation * Time.fixedDeltaTime);
         _rb.MovePosition(this.transform.position + this.transform.forward * vInput * Time.fixedDeltaTime);
         _rb.MoveRotation(_rb.rotation * angleRot);
+
+        //if (Input.GetMouseButtonDown(0))
+        if (doShoot)
+        {
+            // NOTE: original code adds a world space offset of 1 unit in the x direction, so as you turn, origin of bullet moves wrt player
+            //GameObject newBullet = Instantiate(bullet, this.transform.position + new Vector3(1, 0, 0), this.transform.rotation) as GameObject;
+            GameObject newBullet = Instantiate(bullet, this.transform.position + this.transform.right, this.transform.rotation) as GameObject;
+            Rigidbody bulletRB = newBullet.GetComponent<Rigidbody>();
+            bulletRB.velocity = this.transform.forward * bulletSpeed;
+            doShoot = false;
+        }
     }
 
     void MoveKinematically()
