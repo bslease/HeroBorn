@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameBehavior : MonoBehaviour
 {
+    public bool showWinScreen = false;
     public string labelText = "Collect all 4 items and win your freedom!";
     public int maxItems = 4;
 
@@ -22,6 +23,7 @@ public class GameBehavior : MonoBehaviour
             if (_itemsCollected >= maxItems)
             {
                 labelText = "You've found all the items!";
+                showWinScreen = true;
             }
             else
             {
@@ -47,9 +49,23 @@ public class GameBehavior : MonoBehaviour
         //GUI.Box(new Rect(20, 50, 150, 25), "Items Collected:" + _itemsCollected);
         //GUI.Label(new Rect(Screen.width / 2 - 100, Screen.height - 50, 300, 50), labelText);
 
+        guiStyle = new GUIStyle(GUI.skin.box);
         guiStyle.fontSize = GUIFontSize;
-        GUI.Box(new Rect(20, 20, 150, 25), "Player Health:" + _playerHP, guiStyle);
-        GUI.Box(new Rect(20, 50, 150, 25), "Items Collected:" + _itemsCollected, guiStyle);
-        GUI.Label(new Rect(Screen.width / 2 - 200, Screen.height - 50, 300, 50), labelText, guiStyle);
+        GUI.Box(new Rect(20, 20, 300, 50), "Player Health:" + _playerHP, guiStyle);
+        GUI.Box(new Rect(20, 80, 300, 50), "Items Collected:" + _itemsCollected, guiStyle);
+
+        guiStyle = new GUIStyle(GUI.skin.label);
+        guiStyle.fontSize = GUIFontSize;
+        GUI.Label(new Rect(Screen.width / 2 - 250, Screen.height - 50, 600, 50), labelText, guiStyle);
+
+        if (showWinScreen)
+        {
+            guiStyle = new GUIStyle(GUI.skin.button);
+            guiStyle.fontSize = GUIFontSize;
+            if (GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50, 200, 100), "YOU WON!", guiStyle))
+            {
+
+            }
+        }
     }
 }
