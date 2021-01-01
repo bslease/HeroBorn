@@ -4,6 +4,14 @@ using UnityEngine;
 
 public class PlayerBehavior : MonoBehaviour
 {
+    // create a type - a function that takes no params and returns nothing
+    public delegate void JumpingEvent();
+    // declare an event of that type
+    // the type defines the type of callback the event can call
+    // the type defines the type of subsriber that can be added as a listener to the event
+    // in our case, any function that takes no params and returns no values can be added as a listener to playerjump
+    public event JumpingEvent playerJump;
+
     public float moveSpeed = 10f;
     public float rotateSpeed = 75f;
     public bool demoKinematicMovement = false;
@@ -72,7 +80,8 @@ public class PlayerBehavior : MonoBehaviour
         if (doJump)
         {
             _rb.AddForce(Vector3.up * jumpVelocity, ForceMode.Impulse);
-            doJump = false;    
+            doJump = false;
+            playerJump();
         }
 
         Vector3 rotation = Vector3.up * hInput;

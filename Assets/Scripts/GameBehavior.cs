@@ -6,6 +6,9 @@ using CustomExtensions;
 
 public class GameBehavior : MonoBehaviour, IManager
 {
+    public delegate void DebugDelegate(string newText);
+    public DebugDelegate debug = Print;
+
     private string _state;
     public string State
     {
@@ -66,7 +69,10 @@ public class GameBehavior : MonoBehaviour, IManager
 
     void Start()
     {
-        Initialize();    
+        Initialize();
+        InventoryList<string> inventoryList = new InventoryList<string>();
+        inventoryList.SetItem("Potion");
+        Debug.Log(inventoryList.item);
     }
 
     public void Initialize()
@@ -80,6 +86,28 @@ public class GameBehavior : MonoBehaviour, IManager
         lootStack.Push("Golden Key");
         lootStack.Push("Winged Boot");
         lootStack.Push("Mytrhil Bracers");
+
+        debug(_state);
+        LogWithDelegate(debug);
+
+        GameObject player = GameObject.Find("Player");
+        PlayerBehavior playerBehavior = player.GetComponent<PlayerBehavior>();
+        playerBehavior.playerJump += HandlePlayerJump;
+    }
+
+    public void HandlePlayerJump()
+    {
+        debug("Player has jumped...");
+    }
+
+    public void LogWithDelegate(DebugDelegate del)
+    {
+        del("Delegating the debug task...");
+    }
+
+    public static void Print(string newText)
+    {
+        Debug.Log(newText);
     }
 
     // NOTE: OnGUI still gets called even when Time.timeScale is 0
@@ -114,7 +142,22 @@ public class GameBehavior : MonoBehaviour, IManager
             guiStyle.fontSize = GUIFontSize;
             if (GUI.Button(new Rect(Screen.width / 2 - 100, Screen.height / 2 - 50, 200, 100), "You lose...", guiStyle))
             {
-                Utilities.RestartLevel();
+                try
+                {
+                    Utilities.RestartLevel(-1);
+                    debug("Level restarted successfully...");
+                }
+                catch (System.ArgumentException e)
+                {
+                    Utilities.RestartLevel(0);
+                    // NOTE that this code block and the finally block completes even though
+                    // the game object is being destroyed and recreated...
+                    debug("Reverting to scene 0: " + e.ToString());
+                }
+                finally
+                {
+                    debug("Restart handled...");
+                }
             }
         }
     }
